@@ -154,6 +154,19 @@ async function run(){
             const goods =await itemsCollections.find(query).toArray();
             res.send(goods)
         })
+
+
+        // myProducts sector start
+        app.get('/products', async(req,res)=>{
+            let query={}
+            if(req.query.email){
+                query={
+                    email:req.query.email
+                }
+            }
+            const result =await itemsCollections.find(query).toArray();
+            res.send(result)
+        })
     }
     finally{
 
