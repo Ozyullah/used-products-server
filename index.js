@@ -28,6 +28,7 @@ async function run(){
         const bookingDataCollections=client.db("usedProducts").collection("conservation")
         const webReviewsCollections=client.db("usedProducts").collection("webreviews")
         const usersCollection =client.db("usedProducts").collection("users")
+        const advertisedCollection =client.db("usedProducts").collection("advertised")
 
         app.get('/catagory', async(req, res)=>{
                 const query= {}
@@ -56,6 +57,29 @@ async function run(){
             const booking=req.body;
             const result=await bookingDataCollections.insertOne(booking);
             res.send(result)
+        })
+
+        app.get('/bookingQuantity', async(req,res)=>{
+            let query={}
+            if(req.query.products_name || req.query.email){
+                query = {
+                    products_name: req.query.products_name,
+                }
+                query = {
+                    email: req.query.email
+                }
+            }
+            const result =await bookingDataCollections.find(query).toArray()
+            res.send(result);
+        })
+
+
+        // Advertised sector start
+        app.post('/advertise', async(req,res)=>{
+            const id =req.params.id;
+            const query ={ _id: ObjectId(id)}
+            const result = await advertisedCollection.insertOne(query);
+            res.send(result);
         })
 
 
