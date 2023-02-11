@@ -76,10 +76,16 @@ async function run(){
 
         // Advertised sector start
         app.post('/advertise', async(req,res)=>{
-            const id =req.params.id;
-            const query ={ _id: ObjectId(id)}
-            const result = await advertisedCollection.insertOne(query);
+            const item =req.body
+            const result = await advertisedCollection.insertOne(item);
             res.send(result);
+        })
+
+
+        app.get('/advertising', async(req, res)=>{
+            const query={}
+            const qualification =await advertisedCollection.find(query).toArray()
+            res.send(qualification)
         })
 
 
