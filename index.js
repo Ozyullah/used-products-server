@@ -51,6 +51,52 @@ async function run(){
         })
 
 
+        app.get('/productsDetails/:id', async(req, res)=>{
+        
+            const id =req.params.id;
+
+            const query ={ _id: ObjectId(id)}
+
+            console.log(query)
+
+            const laptopsOne =await itemsCollections.findOne(query);
+            // const infoeCatagory =await laptopsOne.toArray();
+            // console.log(infoe)
+            res.send(laptopsOne)
+        })
+
+        // Products details update 
+
+        app.put('/productsDetailsRole/:id', async(req,res)=>{
+            const id =req.params.id
+
+            const filter ={ _id: ObjectId(id)}
+            const options = { upsert: true}
+            const updatedDoc ={
+                $set:{
+                    role:"reported"
+                }
+            }
+            const result =await itemsCollections.updateOne(filter, updatedDoc, options);
+            res.send(result)
+        })
+
+        // Reported data Loading
+
+        app.get('/reportedData', async(req,res)=>{
+            let query ={}
+
+            if(req.query.role){
+                query={
+                    role: req.query.role
+                }
+            }
+
+            const solution =await itemsCollections.find(query).toArray()
+            res.send(solution)
+        })
+
+
         // product booking sector
 
         app.post('/booking', async(req, res)=>{
