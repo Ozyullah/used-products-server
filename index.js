@@ -243,6 +243,15 @@ async function run(){
             const result =await itemsCollections.find(query).toArray();
             res.send(result)
         })
+
+        // Products delete from My products
+
+        app.delete('/productsDelete/:id', async(req, res)=>{
+            const id =req.params.id;
+            const query ={ _id: ObjectId(id)}
+            const result =await itemsCollections.deleteOne(query)
+            res.send(result)
+        })
     }
     finally{
 
