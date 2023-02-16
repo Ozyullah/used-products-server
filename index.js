@@ -1,6 +1,7 @@
 const express =require('express')
 const cors =require('cors')
-require('dotenv').config()
+require('dotenv').config();
+const stripe = require('stripe')(process.env.PAYMENT_SK)
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
@@ -10,7 +11,6 @@ const port =process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
-
 
 
 
@@ -29,6 +29,7 @@ async function run(){
         const webReviewsCollections=client.db("usedProducts").collection("webreviews")
         const usersCollection =client.db("usedProducts").collection("users")
         const advertisedCollection =client.db("usedProducts").collection("advertised")
+        const paymentsCollection =client.db("usedProducts").collection("payments")
 
         app.get('/catagory', async(req, res)=>{
                 const query= {}
@@ -117,6 +118,53 @@ async function run(){
             }
             const result =await bookingDataCollections.find(query).toArray()
             res.send(result);
+        });
+
+        // Id based booking load system
+
+        app.get('/booking/payment/:id', async(req, res)=>{
+            const id =req.params.id
+            const query ={ _id: ObjectId(id)}
+            const result =await bookingDataCollections.findOne(query)
+            res.send(result)
+        })
+
+
+        // Payments section start
+
+        app.post('/create-payment-intent', async(req, res)=>{
+            const booking =req.body;
+            const price=booking.products_price;
+            const amount =price * 100
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                currency: "BDT",
+                amount: amount,
+                "payment_method_types": [
+                    "card"
+                  ],
+            });
+    
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+              })
+        });
+
+
+        app.post('/payments', async(req, res)=>{
+            const payoff =req.body;
+            const result =await paymentsCollection.insertOne(payoff);
+
+            const id =payoff.bookingID
+            const filter = { _id: ObjectId(id)}
+            const updatedDoc ={
+                $set:{
+                    paid: 'succesfull',
+                    transactionId: payoff.trangectioneID
+                }
+            }
+            const advanceResult =await bookingDataCollections.updateOne(filter, updatedDoc)
+            res.send(result)
         })
 
 
