@@ -231,6 +231,14 @@ async function run() {
             const getUsers = await usersCollection.find(query).toArray();
             res.send(getUsers)
         });
+        // check for seller route
+
+        app.get('/seller/:email', async(req, res)=>{
+            const email = req.params.email;
+            const query = { email }
+            const seller = await usersCollection.findOne(query);
+            res.send({isSeller: seller.role === 'Seller'})
+        })
 
         // cheack user Admin route
 
@@ -274,7 +282,8 @@ async function run() {
 
         // All Seller sector 
 
-        app.get('/sellers', async (req, res) => {
+        app.get('/sellers', verifyJsonWebToken, async (req, res) => {
+           
             let query = {};
 
             if (req.query.role) {
